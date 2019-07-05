@@ -21,16 +21,20 @@ public class RouteTest {
     route.group("/api")
         .get("/ping", context -> {
         })
-        .get("/test", context -> {
+        .put("/test", context -> {
         })
         .group("/user")
-        .get("/name", context -> {
+        .post("/name", context -> {
         })
-        .get("/id", context -> {
+        .delete("/id", context -> {
+        });
+    route.group("/api/v2/")
+        .put("/count/", context -> {
         });
     Assert.assertNotNull(route.getMatchedHandler(HttpMethod.GET, "/api/ping"));
-    Assert.assertNotNull(route.getMatchedHandler(HttpMethod.GET, "/api/test"));
-    Assert.assertNotNull(route.getMatchedHandler(HttpMethod.GET, "/api/user/name"));
-    Assert.assertNotNull(route.getMatchedHandler(HttpMethod.GET, "/api/user/id"));
+    Assert.assertNotNull(route.getMatchedHandler(HttpMethod.PUT, "/api/test"));
+    Assert.assertNotNull(route.getMatchedHandler(HttpMethod.POST, "/api/user/name"));
+    Assert.assertNotNull(route.getMatchedHandler(HttpMethod.DELETE, "/api/user/id"));
+    Assert.assertNotNull(route.getMatchedHandler(HttpMethod.PUT, "/api/v2/count"));
   }
 }

@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created at 7/3/19 4:08 PM
  * <p>
  * Mapping HTTP Request to Handler(Controller)
+ * <p>
+ * The URL must start with "/", but a "/" at the end is ok, because it will be remove
  */
 public class Route {
 
@@ -36,6 +38,9 @@ public class Route {
     return requestHandlerMap.get(new RequestInfo(httpMethod, path));
   }
 
+  /**
+   * For grouped URL mapping
+   */
   public static class GroupRoute extends Route {
     private Route route;
     private String prefixURL;
@@ -47,106 +52,119 @@ public class Route {
 
     @Override
     public GroupRoute group(String prefixURL) {
+      prefixURL = URLCheck(prefixURL);
       // pass raw route and append prefix
       return new GroupRoute(this.route, this.prefixURL + prefixURL);
     }
 
     @Override
     public Route get(String URL, Handler handler) {
-      route.get(prefixURL + URL, handler);
-      return this;
+      return httpMethodTemplate(HttpMethod.GET, URL, handler);
     }
 
     @Override
     public Route post(String URL, Handler handler) {
-      route.post(prefixURL + URL, handler);
-      return this;
+      return httpMethodTemplate(HttpMethod.POST, URL, handler);
     }
 
     @Override
     public Route put(String URL, Handler handler) {
-      route.put(prefixURL + URL, handler);
-      return this;
+      return httpMethodTemplate(HttpMethod.PUT, URL, handler);
     }
 
     @Override
     public Route delete(String URL, Handler handler) {
-      route.delete(URL, handler);
-      return this;
+      return httpMethodTemplate(HttpMethod.DELETE, URL, handler);
     }
 
     @Override
     public Route patch(String URL, Handler handler) {
-      route.patch(URL, handler);
-      return this;
+      return httpMethodTemplate(HttpMethod.PATCH, URL, handler);
     }
 
     @Override
     public Route options(String URL, Handler handler) {
-      route.options(URL, handler);
-      return this;
+      return httpMethodTemplate(HttpMethod.OPTIONS, URL, handler);
     }
 
     @Override
     public Route head(String URL, Handler handler) {
-      route.head(URL, handler);
-      return this;
+      return httpMethodTemplate(HttpMethod.HEAD, URL, handler);
     }
 
     @Override
     public Route trace(String URL, Handler handler) {
-      route.trace(URL, handler);
+      return httpMethodTemplate(HttpMethod.TRACE, URL, handler);
+    }
+
+    /**
+     * Method template for convenience.
+     * THe prefixURL must start with "/"
+     *
+     * @param URL must NOT end with "/"
+     */
+    protected Route httpMethodTemplate(HttpMethod httpMethod, String URL, Handler handler) {
+      URL = URLCheck(URL);
+      route.mapping(httpMethod, this.prefixURL + URL, handler);
       return this;
     }
   }
 
   /**
-   * @param prefixURL should start with '/'
+   * @param prefixURL should start with "/", but the "/" at the end is ok, because it will be remove
    * @return grouped route with prefix
    */
   public GroupRoute group(String prefixURL) {
-    // remove '/' in the end
-    StringUtil.removeSuffix(prefixURL, "/");
+    prefixURL = URLCheck(prefixURL);
     return new GroupRoute(this, prefixURL);
   }
 
   public Route get(String URL, final Handler handler) {
-    mapping(HttpMethod.GET, URL, handler);
-    return this;
+    return httpMethodTemplate(HttpMethod.GET, URL, handler);
   }
 
   public Route post(String URL, final Handler handler) {
-    mapping(HttpMethod.POST, URL, handler);
-    return this;
+    return httpMethodTemplate(HttpMethod.POST, URL, handler);
   }
 
   public Route put(String URL, final Handler handler) {
-    this.mapping(HttpMethod.PUT, URL, handler);
-    return this;
+    return httpMethodTemplate(HttpMethod.PUT, URL, handler);
   }
 
   public Route delete(String URL, final Handler handler) {
-    this.mapping(HttpMethod.DELETE, URL, handler);
-    return this;
+    return httpMethodTemplate(HttpMethod.DELETE, URL, handler);
   }
 
   public Route patch(String URL, final Handler handler) {
-    this.mapping(HttpMethod.PATCH, URL, handler);
-    return this;
+    return httpMethodTemplate(HttpMethod.PATCH, URL, handler);
   }
 
   public Route options(String URL, final Handler handler) {
-    this.mapping(HttpMethod.OPTIONS, URL, handler);
-    return this;
+    return httpMethodTemplate(HttpMethod.OPTIONS, URL, handler);
   }
 
   public Route head(String URL, final Handler handler) {
-    this.mapping(HttpMethod.HEAD, URL, handler);
-    return this;
+    return httpMethodTemplate(HttpMethod.HEAD, URL, handler);
   }
 
   public Route trace(String URL, final Handler handler) {
-    this.mapping(HttpMethod.TRACE, URL, handler);
+    return httpMethodTemplate(HttpMethod.TRACE, URL, handler);
+  }
+
+  protected Route httpMethodTemplate(HttpMethod httpMethod, String URL, final Handler handler) {
+    URL = URLCheck(URL);
+    this.mapping(httpMethod, URL, handler);
     return this;
+  }
+
+  /**
+   * Make sure a prefix "/", remove suffix "/".
+   */
+  protected String URLCheck(String URL) {
+    if (!StringUtil.checkPrefix(URL, "/")) {
+      throw new IllegalArgumentException("URL should start with \"/\"");
+    }
+    URL = StringUtil.removeSuffix(URL, "/");
+    return URL;
   }
 }
