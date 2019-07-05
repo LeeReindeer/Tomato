@@ -37,4 +37,12 @@ public class RouteTest {
     Assert.assertNotNull(route.getMatchedHandler(HttpMethod.DELETE, "/api/user/id"));
     Assert.assertNotNull(route.getMatchedHandler(HttpMethod.PUT, "/api/v2/count"));
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testBadURL() {
+    Route route = new Route();
+    route.group("api")
+        .get("/ping", context -> {
+        });
+  }
 }
