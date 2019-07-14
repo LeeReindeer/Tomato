@@ -54,7 +54,7 @@ public class App {
     // api/user/name
     // api/user/id
     // api/v2/count
-      Tomato.ROUTE.group("/api")
+    Tomato.ROUTE.group("/api")
         .get("/ping", context -> {
         })
         .put("/test", context -> {
@@ -65,7 +65,7 @@ public class App {
         .delete("/id", context -> {
         });
 
-    route.group("/api/v2/")
+    Tomato.ROUTE.group("/api/v2/")
         .put("/count/", context -> {
         });
 ```

@@ -1,5 +1,6 @@
 package moe.leer.tomato.mvc;
 
+import moe.leer.tomato.mvc.render.JSONRender;
 import moe.leer.tomato.mvc.render.TextRender;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,10 +46,23 @@ public class RequestContext {
   }
 
   // Render JSON
-  public String json(Object object) {
-    //todo json render
-    return null;
+  public void JSON(Object object) {
+    try {
+      new JSONRender().render(request, response, object);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
+
+  // Render ASCII-only JSON with escaped non-ASCII chracters.
+  public void asciiJSON(Object object) {
+    try {
+      new JSONRender(true).render(request, response, object);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
 
   // Render text
   public void text(String string) {
